@@ -166,3 +166,10 @@
 - Executor and MainThreadPoster interfaces for testability
 - 25 unit tests with mocked dependencies: state transitions, error handling, video change, double start, null/empty validation
 - All tests pass
+
+## 2026-02-17 - US-011: Implement VOT settings/preferences
+- Rewrote VotSettings class with SharedPreferences pattern (keys, pref name, singleton)
+- Added isEnabled/setEnabled, getTargetLanguage/setTargetLanguage, getDuckVolume/setDuckVolume
+- Default values: enabled=false, targetLanguage='ru', duckVolume=0.15
+- Input validation: language null/empty rejected, duck volume clamped 0-1
+- Created VotSettingsTest with 24 tests (all passing)

@@ -68,3 +68,24 @@
 - Files: AudioDuckingManager.java, AudioDuckingManagerTest.java, project_log.md
 - **Learnings:** Fade algorithm must use linear steps (pre-computed step size), not proportional remaining-distance division which causes exponential decay and never converges.
 ---
+
+## 2026-02-17 - US-010: Implement VOT Translation Coordinator
+- Created VotTranslationCoordinator class orchestrating full translation flow
+- State machine: IDLE → REQUESTING → LOADING → PLAYING with ERROR transitions
+- Coordinates: YandexTranslationClient, TranslationAudioManager, AudioDuckingManager, AudioSyncController
+- Background execution via Executor interface, UI posting via MainThreadPoster
+- Video change automatically stops current translation
+- 25 unit tests all passing
+- Committed: bc262c4 (amended)
+- **Learnings:** AudioSyncController requires constructor args (audioManager, mainPlayerProvider), no default constructor.
+---
+
+## 2026-02-17 - US-011: Implement VOT settings/preferences
+- Rewrote VotSettings with SharedPreferences-style keys, singleton pattern, proper naming
+- Getters: isEnabled(), getTargetLanguage(), getDuckVolume()
+- Setters: setEnabled(), setTargetLanguage(), setDuckVolume()
+- Defaults: enabled=false, targetLanguage='ru', duckVolume=0.15
+- Validation: null/empty language rejected, duck volume clamped [0,1]
+- 24 unit tests all passing
+- **Learnings:** Existing test pattern uses plain Java main() with manual assert helpers
+---
