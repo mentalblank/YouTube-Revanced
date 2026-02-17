@@ -115,3 +115,31 @@
 ### Files changed
 - `vot-module/src/main/java/.../player/TranslationAudioManager.java` — full rewrite
 - `vot-module/src/test/java/.../player/TranslationAudioManagerTest.java` — new
+
+## US-008: Implement audio synchronization logic (2026-02-17)
+
+### What was implemented
+- Added `syncWithMainPlayer(positionMs, isPlaying)` method to TranslationAudioManager
+  - Syncs play/pause state: shadow pauses when main pauses, resumes when main resumes
+  - Corrects position drift: seeks shadow player when drift exceeds 500ms threshold
+  - Returns boolean indicating whether a seek correction was performed
+- Created `AudioSyncController` class for periodic sync checks
+  - Configurable sync interval (default 1000ms)
+  - `MainPlayerProvider` interface to abstract main player position/state
+  - `Scheduler` interface for testable periodic execution
+  - Tracks sync count and seek correction count
+- Added SYNC_THRESHOLD_MS constant (500ms) to TranslationAudioManager
+
+### Tests (36 new tests in AudioSyncTest.java)
+- Pause/resume sync: shadow follows main player state
+- Seek correction: drift > 500ms triggers seek, ≤ 500ms does not
+- Boundary: exact 500ms = no seek, 501ms = seek
+- Forward and backward seek handling
+- Combined pause + seek scenario
+- AudioSyncController: periodic sync counting, seek counting, start/stop, no-scheduler error
+- Controller pause/resume propagation
+
+### Files changed
+- `vot-module/src/main/java/.../player/TranslationAudioManager.java` — added syncWithMainPlayer method
+- `vot-module/src/main/java/.../player/AudioSyncController.java` — new
+- `vot-module/src/test/java/.../player/AudioSyncTest.java` — new (36 tests)

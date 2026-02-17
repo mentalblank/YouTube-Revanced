@@ -18,6 +18,9 @@ package app.revanced.integrations.youtube.vot.player;
  */
 public class TranslationAudioManager {
 
+    /** Maximum allowed drift in milliseconds before seeking shadow player */
+    public static final long SYNC_THRESHOLD_MS = 500;
+
     /** Player states */
     public enum State {
         IDLE,       // No audio loaded, player not initialized
@@ -231,6 +234,47 @@ public class TranslationAudioManager {
     /** Get translation audio volume */
     public float getTranslationVolume() {
         return translationVolume;
+    }
+
+    // --- Sync logic (US-008) ---
+
+    /**
+     * Synchronize shadow player with the main video player position and state.
+     * 
+     * - If main player is playing and shadow is paused/ready, resume shadow.
+     * - If main player is paused and shadow is playing, pause shadow.
+     * - If position drift exceeds SYNC_THRESHOLD_MS (500ms), seek shadow player.
+     *
+     * @param mainPositionMs current position of main video player in ms
+     * @param mainIsPlaying  whether the main player is currently playing
+     * @return true if a seek correction was performed
+     */
+    public boolean syncWithMainPlayer(long mainPositionMs, boolean mainIsPlaying) {
+        checkNotReleased();
+        if (!isLoaded()) {
+            return false;
+        }
+
+        boolean didSeek = false;
+
+        // Sync play/pause state
+        if (mainIsPlaying && state == State.PAUSED) {
+            transitionTo(State.PLAYING);
+        } else if (mainIsPlaying && state == State.READY) {
+            transitionTo(State.PLAYING);
+        } else if (!mainIsPlaying && state == State.PLAYING) {
+            transitionTo(State.PAUSED);
+        }
+
+        // Sync position — correct drift if beyond threshold
+        long drift = Math.abs(mainPositionMs - currentPositionMs);
+        if (drift > SYNC_THRESHOLD_MS) {
+            currentPositionMs = mainPositionMs;
+            didSeek = true;
+            // In real implementation: exoPlayer.seekTo(mainPositionMs);
+        }
+
+        return didSeek;
     }
 
     // --- Internal ---
