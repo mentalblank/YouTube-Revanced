@@ -1,0 +1,22 @@
+
+## 2026-02-17 - US-002: Analyze SmartTube VOT reference implementation
+- Cloned voice-over-translation repo into dev/smarttube-clean/ as reference
+- Analyzed @vot.js library: VOTClient, Protobuf, HMAC signing, session management
+- Analyzed browser extension: translation handler, ducking, sync, polling/retry
+- Documented all Protobuf message types (VideoTranslationRequest/Response, Session, etc.)
+- Documented HMAC-SHA-256 signing (Vtrans-Signature + SecYa headers)
+- Documented Shadow Player pattern (second audio element)
+- Documented smart audio ducking (RMS envelope + hysteresis gate)
+- Documented polling/retry logic (20s retry, abort support, lively voice fallback)
+- Created tests/test_documentation.sh (27 tests, all passing)
+- Committed: 88b4175
+- **Learnings:** VOT reference is a browser extension (JS/TS), not Android/Java. The @vot.js library handles all Yandex API communication. HMAC key is hardcoded. Ducking uses sophisticated RMS-based speech detection with exponential smoothing. For Android port, need to reimplement in Java/Kotlin with ExoPlayer instead of <audio> element.
+---
+
+## 2026-02-17 - US-003: Create VOT module package structure
+- Created vot-module/ with package app.revanced.integrations.youtube.vot
+- Sub-packages: api/, player/, ui/, settings/, proto/ — each with placeholder classes
+- 9 Java classes total, all compile cleanly with javac
+- Created tests/test_vot_module.sh (29 tests, all passing)
+- **Learnings:** Package follows ReVanced integrations convention (app.revanced.integrations.youtube.*). Module is standalone Java — no Gradle needed since build.sh downloads pre-built patches/integrations JARs. Future stories will need to figure out how to inject this into the integrations JAR.
+---
