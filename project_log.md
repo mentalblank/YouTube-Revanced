@@ -95,3 +95,23 @@
 ### Reference
 - Headers and API URL from: `@vot.js/shared/dist/data/config.js`
 - Polling pattern from: SmartTube reference implementation pattern
+
+## US-007: Implement Shadow Player (TranslationAudioManager) — 2026-02-17
+
+### What was done
+- Fully implemented `TranslationAudioManager` in `vot-module/src/main/java/.../player/TranslationAudioManager.java`
+- State machine: IDLE → LOADING → READY → PLAYING ⇄ PAUSED, with ERROR state
+- Methods: `loadAudio(url)`, `play()`, `pause()`, `stop()`, `seekTo(ms)`, `release()`
+- State listener interface for callbacks on state transitions and errors
+- Duck volume and translation volume management with clamping
+- Guard rails: IllegalStateException for invalid state transitions, post-release usage
+- Designed for ExoPlayer swap-in (comments mark where real ExoPlayer calls go)
+
+### Tests
+- `TranslationAudioManagerTest.java` — 42 assertions, all passing
+- Covers: initial state, load, play, pause, resume, stop, seek, release
+- Edge cases: play before load, pause when not playing, seek when idle, null/empty URL, double release, reload while playing, volume clamping, state listener
+
+### Files changed
+- `vot-module/src/main/java/.../player/TranslationAudioManager.java` — full rewrite
+- `vot-module/src/test/java/.../player/TranslationAudioManagerTest.java` — new
