@@ -194,3 +194,16 @@
 - Language validation, display names, clamping for volume
 - 27 new tests (VotSettingsPatchTest), all passing
 - All existing tests (36) still passing
+
+## 2026-02-17 — US-014: Implement ReVanced patch hooks for VOT integration
+
+- Created `VotPatch` class in `patch/` sub-package as main ReVanced patch entry point
+- Static hooks: `onVideoLoaded()`, `onPlayerStateChanged()`, `onSeek()`, `onVideoChanged()`
+- Player state constants: PLAYING, PAUSED, ENDED, BUFFERING
+- All hooks delegate to `VotTranslationCoordinator` — no business logic in hooks
+- `onVideoLoaded` detects video changes and calls `coordinator.onVideoChanged()`
+- `STATE_ENDED` triggers `coordinator.stopTranslation()`
+- `PlayerEventListener` interface for testing and extensibility
+- Guard checks: ignores events when not initialized, null/empty video IDs
+- 27 new tests in `VotPatchTest`, all passing
+- All existing tests (37) still passing
