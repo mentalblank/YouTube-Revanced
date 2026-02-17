@@ -27,3 +27,31 @@
 - Root: VotModule.java (entry point, initialization)
 - All classes compile independently with javac
 - 29 tests pass (package structure, declarations, compilation, class loading)
+
+## 2026-02-17 - US-004: Implement Protobuf models for Yandex Translation API
+
+### Changes
+- Fully implemented `TranslationProto.java` with manual protobuf wire-format serialization
+- **TranslationRequest**: all fields from VOT protocol (url, language, responseLanguage, duration, firstRequest, deviceId, forceSourceLang, bypassCache, useLivelyVoice, videoTitle, etc.)
+- **TranslationResponse**: all fields (url, status, duration, translationId, language, message, isLivelyVoice, remainingTime, shouldRetry, etc.)
+- **VideoTranslationStatus**: enum constants (FAILED=0, FINISHED=1, WAITING=2, LONG_WAITING=3, PART_CONTENT=5, AUDIO_REQUESTED=6, SESSION_REQUIRED=7)
+- **ProtoReader**: wire-format decoder supporting varint, double, string, bytes, skip
+- Convenience methods: `buildTranslationRequest()`, `parseTranslationResponse()`
+- `equals()` and `toString()` on both Request and Response
+- Status helper methods: `isFinished()`, `isWaiting()`
+
+### Tests
+- Created `tests/test_protobuf.sh` with 42 total assertions:
+  - Structure tests (class existence, field presence, method signatures)
+  - Compilation test
+  - Full round-trip serialization test (27 sub-tests):
+    - Request encode→decode with all field types (string, double, bool)
+    - Response encode→decode with all field types
+    - Empty message round-trip
+    - Status helper methods
+    - Convenience builder methods
+    - equals() verification
+
+### Field Numbers (from @vot.js protocol)
+- Request: url=3, deviceId=4, firstRequest=5, duration=6, language=8, responseLanguage=14, etc.
+- Response: url=1, duration=2, status=4, remainingTime=5, translationId=7, language=8, etc.
