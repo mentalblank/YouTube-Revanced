@@ -6,3 +6,7 @@ test*
 /logs
 build.md
 cmpr
+.env
+node_modules/
+*.key
+*.pem
