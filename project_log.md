@@ -186,3 +186,11 @@
   - Follows ReVanced convention of static hook methods called from bytecode patches
 - Created VotButtonControllerTest with 21 tests covering:
   - Initial state, state mapping, view updates, settings respect, error handling, patch lifecycle
+
+## 2026-02-17 - US-013: Implement VOT settings UI screen
+- Created VotSettingsPatch in ui/ sub-package with static hook methods
+- Settings: enable toggle, target language dropdown (10 languages), duck volume slider (0-100%)
+- All UI hooks wired to VotSettings singleton
+- Language validation, display names, clamping for volume
+- 27 new tests (VotSettingsPatchTest), all passing
+- All existing tests (36) still passing
