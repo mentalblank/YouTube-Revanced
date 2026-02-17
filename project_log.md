@@ -73,3 +73,25 @@
 ### Reference
 - Key and algorithm from: `@vot.js/shared/dist/secure.js` → `signHMAC("SHA-256", config.hmac, data)`
 - Config from: `@vot.js/shared/dist/data/config.js` → `hmac: "bt8xH3VOlb4mqf0nqAibnDOoiPlXsisf"`
+
+## US-006: Implement YandexTranslationClient (API communication)
+**Date:** 2026-02-17
+
+### Changes
+- Implemented full `YandexTranslationClient` in `vot-module/src/main/java/.../api/YandexTranslationClient.java`
+- HTTP client using `HttpURLConnection` with proper headers (Content-Type, Vtrans-Signature, Sec-Vtrans-Token, User-Agent, Origin, Referer)
+- `requestTranslation()` sends signed protobuf request, parses protobuf response
+- Polling with exponential backoff (1s initial, 1.5x multiplier, 5s max, 30 attempts max)
+- `TranslationResult` class with status helpers (isSuccess, isPending, isFailed)
+- `TranslationException` with HTTP status and translation status codes
+- `HttpConnectionFactory` interface for dependency injection / testing
+- `Sleeper` interface to avoid real delays in tests
+
+### Tests
+- `YandexTranslationClientTestRunner.java` — 41 tests, all passing
+- Covers: success, polling (pending→success), failed translation, HTTP errors (429), network errors, failure during polling, status helpers, protobuf body verification, constants validation
+- Uses mock HTTP connections (no real network calls)
+
+### Reference
+- Headers and API URL from: `@vot.js/shared/dist/data/config.js`
+- Polling pattern from: SmartTube reference implementation pattern

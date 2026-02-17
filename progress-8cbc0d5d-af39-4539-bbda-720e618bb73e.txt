@@ -31,3 +31,20 @@
 - Committed: 692c0a8
 - **Learnings:** VOT protocol field numbers sourced from @vot.js/shared/protos/yandex.js. Manual protobuf is straightforward for flat messages.
 ---
+
+## 2026-02-17 - US-005: Implement YandexSignature (HMAC signing)
+- Implemented YandexSignature with HMAC-SHA256 using key from @vot.js reference
+- Methods: sign(), getVtransSignature(), getTokenSignature(), generateUUID()
+- 10 tests with known vectors from reference JS - all passing
+- Committed: 5ee86c0
+- **Learnings:** HMAC key is hardcoded in @vot.js config (`bt8xH3VOlb4mqf0nqAibnDOoiPlXsisf`). Signature is simple HMAC-SHA256 hex output. Token format includes uuid:path:componentVersion.
+---
+
+## 2026-02-17 - US-006: Implement YandexTranslationClient (API communication)
+- Implemented YandexTranslationClient with HttpURLConnection, protobuf request/response, HMAC signing
+- Polling with exponential backoff for pending translations
+- TranslationResult/TranslationException classes
+- HttpConnectionFactory for DI/testing, NoOpSleeper for test speed
+- 41 tests in YandexTranslationClientTestRunner (mock HTTP, all passing)
+- **Learnings:** HttpURLConnection works well for protobuf; mock pattern with factory interface keeps tests fast and deterministic
+---
