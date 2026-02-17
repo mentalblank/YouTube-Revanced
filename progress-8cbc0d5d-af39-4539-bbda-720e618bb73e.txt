@@ -48,3 +48,23 @@
 - 41 tests in YandexTranslationClientTestRunner (mock HTTP, all passing)
 - **Learnings:** HttpURLConnection works well for protobuf; mock pattern with factory interface keeps tests fast and deterministic
 ---
+
+## 2026-02-17 - US-008: Implement audio synchronization logic
+- Added syncWithMainPlayer(positionMs, isPlaying) to TranslationAudioManager
+- Created AudioSyncController for periodic sync with Scheduler/MainPlayerProvider interfaces
+- 500ms drift threshold with seek correction
+- Play/pause state sync between main and shadow player
+- 36 new tests in AudioSyncTest.java, all passing
+- Committed: 8b819fa
+- **Learnings:** Abstracted scheduler for testability; boundary test at exact threshold important
+---
+
+## 2026-02-17 - US-009: Implement audio ducking (original volume reduction)
+- Created AudioDuckingManager in player/ sub-package with linear fade logic
+- startDucking()/stopDucking() with smooth volume transitions
+- Default duck volume 0.15, configurable via setDuckVolume()
+- VolumeApplier and FadeScheduler interfaces for testability
+- 44 unit tests, all passing
+- Files: AudioDuckingManager.java, AudioDuckingManagerTest.java, project_log.md
+- **Learnings:** Fade algorithm must use linear steps (pre-computed step size), not proportional remaining-distance division which causes exponential decay and never converges.
+---

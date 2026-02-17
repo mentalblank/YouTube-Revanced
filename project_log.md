@@ -143,3 +143,14 @@
 - `vot-module/src/main/java/.../player/TranslationAudioManager.java` — added syncWithMainPlayer method
 - `vot-module/src/main/java/.../player/AudioSyncController.java` — new
 - `vot-module/src/test/java/.../player/AudioSyncTest.java` — new (36 tests)
+
+## 2026-02-17 — US-009: Implement audio ducking (original volume reduction)
+
+- Created `AudioDuckingManager` class in `vot-module/src/main/java/.../player/`
+- Features: startDucking(), stopDucking(), setDuckVolume(float), smooth linear fade
+- Default duck volume: 0.15, fade duration: 300ms over configurable steps
+- VolumeApplier interface for applying volume to main player
+- FadeScheduler interface for testable fade animation
+- Without scheduler: instant snap to target (fallback)
+- 44 unit tests covering: default values, start/stop, configurable volume, clamping, fade steps, volume applier callbacks, immediate volume set, scheduler integration, multiple cycles
+- All tests pass
