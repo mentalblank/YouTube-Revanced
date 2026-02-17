@@ -173,3 +173,16 @@
 - Default values: enabled=false, targetLanguage='ru', duckVolume=0.15
 - Input validation: language null/empty rejected, duck volume clamped 0-1
 - Created VotSettingsTest with 24 tests (all passing)
+
+## US-012: Implement VOT player UI button (2026-02-17)
+- Created VotButtonState enum (INACTIVE, LOADING, ACTIVE) for visual states
+- Created VotButtonController: pure-logic controller mapping coordinator states to button states
+  - Implements StateListener to react to coordinator state changes
+  - Handles tap events (toggle translation on/off)
+  - Respects VotSettings.isEnabled()
+  - ButtonView interface for decoupling from Android views
+- Created VotButtonPatch: ReVanced patch entry point with static hooks
+  - initialize(), onPlayerControlsCreated(), onVideoChanged(), onButtonTapped(), onSettingsChanged()
+  - Follows ReVanced convention of static hook methods called from bytecode patches
+- Created VotButtonControllerTest with 21 tests covering:
+  - Initial state, state mapping, view updates, settings respect, error handling, patch lifecycle
