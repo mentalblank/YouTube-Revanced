@@ -20,3 +20,14 @@
 - Created tests/test_vot_module.sh (29 tests, all passing)
 - **Learnings:** Package follows ReVanced integrations convention (app.revanced.integrations.youtube.*). Module is standalone Java — no Gradle needed since build.sh downloads pre-built patches/integrations JARs. Future stories will need to figure out how to inject this into the integrations JAR.
 ---
+
+## 2026-02-17 - US-004: Implement Protobuf models for Yandex Translation API
+- Implemented full manual protobuf serialization in TranslationProto.java
+- TranslationRequest/Response with all VOT protocol fields and correct field numbers
+- ProtoReader for wire-format decoding (varint, double, string, bytes)
+- VideoTranslationStatus constants matching Yandex API
+- Created test_protobuf.sh: 42 assertions including full round-trip serialization
+- All tests pass (27 round-trip sub-tests + 15 structure tests)
+- Committed: 692c0a8
+- **Learnings:** VOT protocol field numbers sourced from @vot.js/shared/protos/yandex.js. Manual protobuf is straightforward for flat messages.
+---

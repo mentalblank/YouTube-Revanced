@@ -55,3 +55,21 @@
 ### Field Numbers (from @vot.js protocol)
 - Request: url=3, deviceId=4, firstRequest=5, duration=6, language=8, responseLanguage=14, etc.
 - Response: url=1, duration=2, status=4, remainingTime=5, translationId=7, language=8, etc.
+
+## 2026-02-17 - US-005: Implement YandexSignature (HMAC signing)
+
+### What was done
+- Implemented `YandexSignature` class in `vot-module/src/main/java/.../vot/api/`
+- HMAC-SHA256 signing using key from reference (`bt8xH3VOlb4mqf0nqAibnDOoiPlXsisf`)
+- Methods: `sign(byte[])`, `sign(String)`, `getVtransSignature()`, `getTokenSignature()`, `generateUUID()`, `bytesToHex()`
+- Token signature format: `{hmac}:{uuid}:{path}:{componentVersion}` matching reference
+- Component version: `25.6.0.2259` from @vot.js config
+
+### Tests
+- `YandexSignatureTest.java` (JUnit-style) + `YandexSignatureTestRunner.java` (standalone runner)
+- 10 test cases with known test vectors generated from reference JS implementation
+- All tests passing
+
+### Reference
+- Key and algorithm from: `@vot.js/shared/dist/secure.js` → `signHMAC("SHA-256", config.hmac, data)`
+- Config from: `@vot.js/shared/dist/data/config.js` → `hmac: "bt8xH3VOlb4mqf0nqAibnDOoiPlXsisf"`
