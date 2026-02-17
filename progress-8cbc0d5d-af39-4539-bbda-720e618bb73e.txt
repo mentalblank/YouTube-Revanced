@@ -89,3 +89,12 @@
 - 24 unit tests all passing
 - **Learnings:** Existing test pattern uses plain Java main() with manual assert helpers
 ---
+
+## 2026-02-17 - US-013: Implement VOT settings UI screen
+- Created VotSettingsPatch in ui/ sub-package with static hooks for ReVanced bytecode patches
+- Settings: enable toggle, target language dropdown (10 languages), duck volume slider (0-100%)
+- All UI hooks wired to VotSettings singleton
+- Language validation, display names, volume clamping
+- 27 new tests (VotSettingsPatchTest), all passing; 36 existing tests still passing
+- Committed: 58fd27b
+---
