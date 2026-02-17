@@ -1,0 +1,100 @@
+
+## 2026-02-17 - US-002: Analyze SmartTube VOT reference implementation
+- Cloned voice-over-translation repo into dev/smarttube-clean/ as reference
+- Analyzed @vot.js library: VOTClient, Protobuf, HMAC signing, session management
+- Analyzed browser extension: translation handler, ducking, sync, polling/retry
+- Documented all Protobuf message types (VideoTranslationRequest/Response, Session, etc.)
+- Documented HMAC-SHA-256 signing (Vtrans-Signature + SecYa headers)
+- Documented Shadow Player pattern (second audio element)
+- Documented smart audio ducking (RMS envelope + hysteresis gate)
+- Documented polling/retry logic (20s retry, abort support, lively voice fallback)
+- Created tests/test_documentation.sh (27 tests, all passing)
+- Committed: 88b4175
+- **Learnings:** VOT reference is a browser extension (JS/TS), not Android/Java. The @vot.js library handles all Yandex API communication. HMAC key is hardcoded. Ducking uses sophisticated RMS-based speech detection with exponential smoothing. For Android port, need to reimplement in Java/Kotlin with ExoPlayer instead of <audio> element.
+---
+
+## 2026-02-17 - US-003: Create VOT module package structure
+- Created vot-module/ with package app.revanced.integrations.youtube.vot
+- Sub-packages: api/, player/, ui/, settings/, proto/ — each with placeholder classes
+- 9 Java classes total, all compile cleanly with javac
+- Created tests/test_vot_module.sh (29 tests, all passing)
+- **Learnings:** Package follows ReVanced integrations convention (app.revanced.integrations.youtube.*). Module is standalone Java — no Gradle needed since build.sh downloads pre-built patches/integrations JARs. Future stories will need to figure out how to inject this into the integrations JAR.
+---
+
+## 2026-02-17 - US-004: Implement Protobuf models for Yandex Translation API
+- Implemented full manual protobuf serialization in TranslationProto.java
+- TranslationRequest/Response with all VOT protocol fields and correct field numbers
+- ProtoReader for wire-format decoding (varint, double, string, bytes)
+- VideoTranslationStatus constants matching Yandex API
+- Created test_protobuf.sh: 42 assertions including full round-trip serialization
+- All tests pass (27 round-trip sub-tests + 15 structure tests)
+- Committed: 692c0a8
+- **Learnings:** VOT protocol field numbers sourced from @vot.js/shared/protos/yandex.js. Manual protobuf is straightforward for flat messages.
+---
+
+## 2026-02-17 - US-005: Implement YandexSignature (HMAC signing)
+- Implemented YandexSignature with HMAC-SHA256 using key from @vot.js reference
+- Methods: sign(), getVtransSignature(), getTokenSignature(), generateUUID()
+- 10 tests with known vectors from reference JS - all passing
+- Committed: 5ee86c0
+- **Learnings:** HMAC key is hardcoded in @vot.js config (`bt8xH3VOlb4mqf0nqAibnDOoiPlXsisf`). Signature is simple HMAC-SHA256 hex output. Token format includes uuid:path:componentVersion.
+---
+
+## 2026-02-17 - US-006: Implement YandexTranslationClient (API communication)
+- Implemented YandexTranslationClient with HttpURLConnection, protobuf request/response, HMAC signing
+- Polling with exponential backoff for pending translations
+- TranslationResult/TranslationException classes
+- HttpConnectionFactory for DI/testing, NoOpSleeper for test speed
+- 41 tests in YandexTranslationClientTestRunner (mock HTTP, all passing)
+- **Learnings:** HttpURLConnection works well for protobuf; mock pattern with factory interface keeps tests fast and deterministic
+---
+
+## 2026-02-17 - US-008: Implement audio synchronization logic
+- Added syncWithMainPlayer(positionMs, isPlaying) to TranslationAudioManager
+- Created AudioSyncController for periodic sync with Scheduler/MainPlayerProvider interfaces
+- 500ms drift threshold with seek correction
+- Play/pause state sync between main and shadow player
+- 36 new tests in AudioSyncTest.java, all passing
+- Committed: 8b819fa
+- **Learnings:** Abstracted scheduler for testability; boundary test at exact threshold important
+---
+
+## 2026-02-17 - US-009: Implement audio ducking (original volume reduction)
+- Created AudioDuckingManager in player/ sub-package with linear fade logic
+- startDucking()/stopDucking() with smooth volume transitions
+- Default duck volume 0.15, configurable via setDuckVolume()
+- VolumeApplier and FadeScheduler interfaces for testability
+- 44 unit tests, all passing
+- Files: AudioDuckingManager.java, AudioDuckingManagerTest.java, project_log.md
+- **Learnings:** Fade algorithm must use linear steps (pre-computed step size), not proportional remaining-distance division which causes exponential decay and never converges.
+---
+
+## 2026-02-17 - US-010: Implement VOT Translation Coordinator
+- Created VotTranslationCoordinator class orchestrating full translation flow
+- State machine: IDLE → REQUESTING → LOADING → PLAYING with ERROR transitions
+- Coordinates: YandexTranslationClient, TranslationAudioManager, AudioDuckingManager, AudioSyncController
+- Background execution via Executor interface, UI posting via MainThreadPoster
+- Video change automatically stops current translation
+- 25 unit tests all passing
+- Committed: bc262c4 (amended)
+- **Learnings:** AudioSyncController requires constructor args (audioManager, mainPlayerProvider), no default constructor.
+---
+
+## 2026-02-17 - US-011: Implement VOT settings/preferences
+- Rewrote VotSettings with SharedPreferences-style keys, singleton pattern, proper naming
+- Getters: isEnabled(), getTargetLanguage(), getDuckVolume()
+- Setters: setEnabled(), setTargetLanguage(), setDuckVolume()
+- Defaults: enabled=false, targetLanguage='ru', duckVolume=0.15
+- Validation: null/empty language rejected, duck volume clamped [0,1]
+- 24 unit tests all passing
+- **Learnings:** Existing test pattern uses plain Java main() with manual assert helpers
+---
+
+## 2026-02-17 - US-013: Implement VOT settings UI screen
+- Created VotSettingsPatch in ui/ sub-package with static hooks for ReVanced bytecode patches
+- Settings: enable toggle, target language dropdown (10 languages), duck volume slider (0-100%)
+- All UI hooks wired to VotSettings singleton
+- Language validation, display names, volume clamping
+- 27 new tests (VotSettingsPatchTest), all passing; 36 existing tests still passing
+- Committed: 58fd27b
+---
