@@ -154,3 +154,15 @@
 - Without scheduler: instant snap to target (fallback)
 - 44 unit tests covering: default values, start/stop, configurable volume, clamping, fade steps, volume applier callbacks, immediate volume set, scheduler integration, multiple cycles
 - All tests pass
+
+## 2026-02-17 - US-010: Implement VOT Translation Coordinator
+- Created VotTranslationCoordinator in root vot package
+- Orchestrates full flow: request → poll → load audio → sync → duck
+- State machine: IDLE → REQUESTING → LOADING → PLAYING, with ERROR transitions
+- startTranslation(videoId, targetLanguage) runs API on background thread (Executor)
+- stopTranslation() stops audio, ducking, sync, restores IDLE
+- onVideoChanged() automatically stops current translation
+- Thread-safe with synchronized state transitions
+- Executor and MainThreadPoster interfaces for testability
+- 25 unit tests with mocked dependencies: state transitions, error handling, video change, double start, null/empty validation
+- All tests pass

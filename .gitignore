@@ -10,3 +10,4 @@ cmpr
 node_modules/
 *.key
 *.pem
+*.class
