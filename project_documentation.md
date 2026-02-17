@@ -537,3 +537,70 @@ app/revanced/integrations/vot/
 │   └── VOTSettingsFragment.java — Settings UI
 └── VOTManager.java             — Main entry point / coordinator
 ```
+
+## Final Architecture
+
+### Component Diagram (Text)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    YouTube ReVanced APK                      │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                  VOT Module (vot-module/)             │   │
+│  │                                                       │   │
+│  │  ┌─────────────┐    ┌──────────────────────────┐     │   │
+│  │  │  patch/      │    │  VotTranslationCoordinator│    │   │
+│  │  │  VotPatch    │───▶│  (state machine)          │    │   │
+│  │  │  (hooks)     │    │  IDLE→REQUESTING→LOADING  │    │   │
+│  │  └─────────────┘    │  →PLAYING / ERROR          │    │   │
+│  │                      └──────┬───┬───┬───┬────────┘    │   │
+│  │                             │   │   │   │             │   │
+│  │              ┌──────────────┘   │   │   └──────┐      │   │
+│  │              ▼                  ▼   ▼          ▼      │   │
+│  │  ┌──────────────────┐ ┌──────────┐ ┌────────────┐    │   │
+│  │  │ api/             │ │ player/  │ │ player/    │    │   │
+│  │  │ YandexTranslation│ │ Translation│ │AudioDucking│   │   │
+│  │  │ Client           │ │ AudioMgr │ │ Manager    │    │   │
+│  │  │ + YandexSignature│ │ (Shadow  │ │ + AudioSync│    │   │
+│  │  │ + TranslationProto│ │ Player) │ │ Controller │    │   │
+│  │  └──────────────────┘ └──────────┘ └────────────┘    │   │
+│  │                                                       │   │
+│  │  ┌─────────────┐    ┌──────────────┐                 │   │
+│  │  │ ui/          │    │ settings/    │                 │   │
+│  │  │ VotButton*   │    │ VotSettings  │                 │   │
+│  │  │ VotSettings* │    │ (prefs)      │                 │   │
+│  │  └─────────────┘    └──────────────┘                 │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│  build.sh + config.toml → revanced-cli → patched APK        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+1. **User taps VOT button** → VotButtonController → VotTranslationCoordinator.startTranslation()
+2. **Coordinator REQUESTING** → YandexTranslationClient sends protobuf request (HMAC-signed)
+3. **API response** → audio URL received → TranslationAudioManager loads audio
+4. **Coordinator PLAYING** → AudioDuckingManager reduces original volume, AudioSyncController keeps <500ms drift
+5. **User taps again / video ends** → Coordinator.stopTranslation() → restore volume, stop shadow player
+
+### Dependency Graph (no cycles)
+
+```
+proto/ ← api/ ← coordinator ← patch/
+player/ ←────────┘     ↑
+settings/ ←── ui/ ──────┘
+```
+
+### Package Summary
+
+| Package | Files | Purpose |
+|---------|-------|---------|
+| `proto/` | TranslationProto | Protobuf encode/decode for Yandex API |
+| `api/` | YandexSignature, YandexTranslationClient | HMAC signing + HTTP API |
+| `player/` | TranslationAudioManager, AudioSyncController, AudioDuckingManager, AudioDucking | Shadow ExoPlayer + sync + ducking |
+| `settings/` | VotSettings | SharedPreferences wrapper |
+| `ui/` | VotButton*, VotSettingsPatch, TranslationButton | Player button + settings screen hooks |
+| `patch/` | VotPatch | ReVanced bytecode patch entry points |
+| root | VotModule, VotTranslationCoordinator | Module init + state machine coordinator |

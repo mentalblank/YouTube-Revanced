@@ -2,7 +2,7 @@
 *.zip
 /temp
 /build
-/test*
+/test-output*
 /logs
 build.md
 cmpr

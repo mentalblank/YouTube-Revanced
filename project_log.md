@@ -207,3 +207,17 @@
 - Guard checks: ignores events when not initialized, null/empty video IDs
 - 27 new tests in `VotPatchTest`, all passing
 - All existing tests (37) still passing
+
+## 2026-02-17 — US-015: Integration: wire all VOT components and verify build
+
+- Created `tests/test_integration.sh` with 46 integration tests covering:
+  - All 16 source files present
+  - No circular dependencies between packages (proto→api→coordinator, player→coordinator, etc.)
+  - Full Java compilation of all sources together
+  - VotPatch has all 5 required hook methods
+  - All 9 test files present for every sub-package
+  - Wiring verification: Coordinator↔all subsystems, Patch↔Coordinator, UI↔Coordinator+Settings
+  - Documentation completeness
+- Updated `project_documentation.md` with final architecture diagram (text), data flow, dependency graph, package summary
+- All tests passing: 46 (integration) + 37 (module) + 15 (protobuf) + 27 (documentation) + 8 (build config) = 133 total
+- **All acceptance criteria met for US-015 and overall project**
