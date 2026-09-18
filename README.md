@@ -1,6 +1,6 @@
 # YouTube - Morphe (Auto-Build)
 
-Patched with [morphe-patches](https://github.com/MorpheApp/morphe-patches), built in `arm64-v8a` and `arm-v7a`.
+Patched with [morphe-patches](https://github.com/MorpheApp/morphe-patches). One universal APK covering `arm64-v8a` and `armeabi-v7a`.
 
 ## Installation
 
@@ -10,7 +10,7 @@ Patched with [morphe-patches](https://github.com/MorpheApp/morphe-patches), buil
 
 ## Patches
 
-80 of the 86 available patches are applied by default — the full list for the exact bundle used is linked in every release. The main ones:
+81 of the 86 available patches are applied by default — the full list for the exact bundle used is linked in every release. The main ones:
 
 **Ads and tracking** — Hide ads · Sanitize sharing links · Remove viewer discretion dialog
 
