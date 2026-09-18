@@ -1,6 +1,6 @@
 # YouTube - Morphe (Auto-Build)
 
-Patched with [morphe-patches](https://github.com/MorpheApp/morphe-patches), built in `arm64-v8a` and `arm-v7a`.
+Patched with [morphe-patches](https://github.com/MorpheApp/morphe-patches). One universal APK covering `arm64-v8a` and `armeabi-v7a`.
 
 ## Installation
 
